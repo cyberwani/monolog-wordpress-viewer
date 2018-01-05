@@ -33,6 +33,8 @@
  * Our theme for this list table is going to be movies.
  */
 class WP_Log_List_Table extends WP_List_Table {
+	
+	private $table = 'log';
         
     /** ************************************************************************
      * REQUIRED. Set up a constructor that references the parent constructor. We 
@@ -54,12 +56,26 @@ class WP_Log_List_Table extends WP_List_Table {
         
         
     }
+	
+	/**
+     * Returns the full log tables name
+     *
+     * @return string
+     */
+    public function get_table_name() {
+		
+		global $wpdb;
+		
+		return $wpdb->prefix . $this->table;
+    }
     
     function my_post_views( $views ){
         global $wpdb;
+		
+		$table_name = $this->get_table_name();
         
         // SELECT distinct_logs.action, count( 1 ) AS ct FROM ( SELECT action FROM wp_selway_log ) AS distinct_logs GROUP BY distinct_logs.action
-         $sql_results = $wpdb->get_results( "SELECT distinct_logs.channel, count( 1 ) AS count FROM ( SELECT channel FROM `".$wpdb->prefix."log` WHERE 1 ) AS distinct_logs GROUP BY distinct_logs.channel ORDER BY `channel`" );
+         $sql_results = $wpdb->get_results( "SELECT distinct_logs.channel, count( 1 ) AS count FROM ( SELECT channel FROM `{$table_name}` WHERE 1 ) AS distinct_logs GROUP BY distinct_logs.channel ORDER BY `channel`" );
         
         $views = array();
         
@@ -287,7 +303,9 @@ class WP_Log_List_Table extends WP_List_Table {
         
         global $wpdb;
         
-        $sql_results = $wpdb->get_results( "SELECT * FROM `".$wpdb->prefix."log` WHERE 1 ORDER BY id DESC" );
+		$table_name = $this->get_table_name();
+		
+        $sql_results = $wpdb->get_results( "SELECT * FROM `{$table_name}` WHERE 1 ORDER BY id DESC" );
         
         
         $data = array();
